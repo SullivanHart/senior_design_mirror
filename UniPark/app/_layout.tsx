@@ -1,7 +1,13 @@
-import WelcomeScreen from "./Screens/WelcomeScreen.js"
+import { Stack } from 'expo-router';
+import { useEffect } from "react";
+import { useRouter } from "expo-router";
 
-export default function App() {
+export default function Layout() {
+  const router = useRouter();
 
-  return <WelcomeScreen />
+  useEffect(() => {
+    router.replace("./Screens/WelcomeScreen"); // Redirect to Welcome screen
+  }, []);
 
+  return <Stack />;
 }

@@ -1,9 +1,12 @@
 import React from 'react';
 import { Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from "expo-router";
 
-function WelcomeScreen(props) {
+export default function WelcomeScreen() {
 
-    function loginHandler() {console.log("Login Pressed")} // Replace console.log() with screen functionality
+    const router = useRouter();
+
+    function loginHandler() {router.push('./LoginScreen')} 
     function registerHandler() {console.log("Register Pressed")}
 
     return (
@@ -63,5 +66,3 @@ const styles = StyleSheet.create({
         fontSize: 22,
     },
 })
-
-export default WelcomeScreen;
