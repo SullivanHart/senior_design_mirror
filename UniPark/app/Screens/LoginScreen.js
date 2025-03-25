@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard, Pressable } from 'react-native';
 import { useRouter } from "expo-router";
 
 function LoginScreen(props) {
@@ -34,6 +34,9 @@ function LoginScreen(props) {
                         secureTextEntry={true}
                         onChangeText={(newText) => setPass(newText)}
                     />
+                    <Pressable  style={styles.submit} onPress={() => console.log("Submit Pressed")}>
+                        <Text style={styles.text}> Submit </Text>
+                    </Pressable>
                 </View>
             </TouchableWithoutFeedback>
             
@@ -79,6 +82,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         height: '40%',
         //backgroundColor: '#fff'
+    },
+    submit: {
+        backgroundColor: 'dodgerblue',
+        borderRadius: 20,
+        marginTop: 10,
+        padding: 5,
     },
 });
 
