@@ -4,7 +4,8 @@ import { useRouter } from "expo-router";
 
 function LoginScreen(props) {
     const router = useRouter();
-    const [text, setText] = useState("");
+    const [email, setEmail] = useState("");
+    const [pass, setPass] = useState("")
 
 
     return (
@@ -23,15 +24,15 @@ function LoginScreen(props) {
                     <TextInput
                         style={styles.input}
                         placeholder="Email"
-                        value={text}
-                        secureTextEntry={true}
-                        onChangeText={(newText) => setText(newText)}
+                        value={email}
+                        onChangeText={(newText) => setEmail(newText)}
                     />
                     <TextInput
                         style={styles.input}
                         placeholder="Password"
-                        value={text}
-                        onChangeText={(newText) => setText(newText)}
+                        value={pass}
+                        secureTextEntry={true}
+                        onChangeText={(newText) => setPass(newText)}
                     />
                 </View>
             </TouchableWithoutFeedback>
