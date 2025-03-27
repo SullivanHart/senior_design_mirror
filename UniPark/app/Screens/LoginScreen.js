@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard, Pressable } from 'react-native';
+import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard, Pressable, Alert } from 'react-native';
 import { useRouter } from "expo-router";
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 function LoginScreen(props) {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [pass, setPass] = useState("")
 
+    const loginValidationSchema = Yup.object().shape({
+        email: Yup.string().email('Invalid email').required('Email is required'),
+        password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+    });
 
     return (
         <ImageBackground 
@@ -20,24 +26,40 @@ function LoginScreen(props) {
             </View>
 
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-                <View style={styles.formContainer} >
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Email"
-                        value={email}
-                        onChangeText={(newText) => setEmail(newText)}
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        value={pass}
-                        secureTextEntry={true}
-                        onChangeText={(newText) => setPass(newText)}
-                    />
-                    <Pressable  style={styles.submit} onPress={() => console.log("Submit Pressed")}>
-                        <Text style={styles.text}> Submit </Text>
-                    </Pressable>
-                </View>
+                <Formik
+                    initialValues={{ email: '', password: '' }}
+                    validationSchema={loginValidationSchema}
+                    onSubmit={(values) => {
+                    Alert.alert(`Logged in as ${values.email}`);
+                    }}
+                >
+                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                    <View style={styles.formContainer} >
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Email"
+                            value={values.email}
+                            onChangeText={handleChange('email')}
+                            onBlur={handleBlur('email')}
+                        />
+                        {touched.email && errors.email && <Text style={{ color: 'red' }}>{errors.email}</Text>}
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Password"
+                            value={values.password}
+                            secureTextEntry={true}
+                            onChangeText={handleChange('password')}
+                            onBlur={handleBlur('password')}
+                        />
+                        {touched.password && errors.password && <Text style={{ color: 'red' }}>{errors.password}</Text>}
+
+                        <Pressable  style={styles.submit} onPress={handleSubmit}>
+                            <Text style={styles.text}> Submit </Text>
+                        </Pressable>
+                    </View>
+                    )}
+                </Formik>
             </TouchableWithoutFeedback>
             
 
@@ -58,9 +80,8 @@ const styles = StyleSheet.create({
         
     },
     logoContainer: {
-        position: 'absolute',
-        top: 100,
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: 10
     },
     text: {
         color: '#fff',
