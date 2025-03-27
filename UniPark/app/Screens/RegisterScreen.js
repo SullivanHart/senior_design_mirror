@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, ImageBackground, Pressable, StyleSheet, Text, View, TouchableWithoutFeedback, TextInput, Alert } from 'react-native';
+import { Image, ImageBackground, Pressable, StyleSheet, Text, View, TouchableWithoutFeedback, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -13,6 +13,23 @@ function RegisterScreen(props) {
             password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
             confirmPassword: Yup.string().required('Password is required').oneOf([Yup.ref('password')], 'Passwords must match'),
         });
+
+    async function registerHandler(values, { setSubmitting, setErrors }) {
+        
+        try {
+            const response = await axios.post('http://10.29.168.128:8080/api/person/register', values);
+        
+            // Store user token
+            await AsyncStorage.setItem('userToken', response.data.user.token);
+        
+            Alert.alert('Registration complete. Please login.');
+            router.push('./LoginScreen');
+          } catch (error) {
+            setErrors({ api: 'Invalid email or password' });
+          } finally {
+            setSubmitting(false);
+          }
+    }
 
     return (
         <ImageBackground 
@@ -29,10 +46,10 @@ function RegisterScreen(props) {
                                 initialValues={{ email: '', password: '', confirmPassword: '', }}
                                 validationSchema={registerValidationSchema}
                                 onSubmit={(values) => {
-                                Alert.alert(`Registered in as ${values.email}`);                // This is where to add the API call for login
+                                    registerHandler();                // This is where to add the API call for register
                                 }}
                             >
-                                {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                                {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
                                 <View style={styles.formContainer} >
                                     <TextInput
                                         style={styles.input}
@@ -63,9 +80,17 @@ function RegisterScreen(props) {
                                     />
                                     {touched.confirmPassword && errors.confirmPassword && <Text style={{ color: 'red' }}>{errors.confirmPassword}</Text>}
             
-                                    <Pressable  style={styles.submit} onPress={handleSubmit}>
-                                        <Text style={styles.text}> Submit </Text>
-                                    </Pressable>
+                                    
+
+                                    {errors.api && <Text style={{ color: 'red', marginBottom: 10 }}>{errors.api}</Text>}
+
+                                    {isSubmitting ? (
+                                        <ActivityIndicator size="small" color="#0000ff" />
+                                    ) : (
+                                        <Pressable  style={styles.submit} onPress={handleSubmit}>
+                                            <Text style={styles.text}> Submit </Text>
+                                        </Pressable>
+                                    )}
                                 </View>
                                 )}
                             </Formik>
