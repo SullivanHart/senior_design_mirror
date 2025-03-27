@@ -17,8 +17,8 @@ public class PersonController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
-        boolean valid = personService.validateLogin(email, password);
+    public ResponseEntity<String> login(@RequestBody PersonLogin login) {
+        boolean valid = personService.validateLogin(login.getEmail(), login.getPassword());
         if (valid) {
           return ResponseEntity.status(HttpStatus.OK).body("Login successful!");
       } else {
