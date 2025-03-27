@@ -2,25 +2,29 @@ import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWit
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function LoginScreen(props) {
     const router = useRouter();
 
     const loginValidationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email').required('Email is required'),
-        password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+        password: Yup.string().min(3, 'Password must be at least 3 characters').required('Password is required'),
     });
 
     const handleLogin = async (values, { setSubmitting, setErrors }) => {
         try {
-            const response = await axios.post('http://10.29.168.128:8080/api/person/login', values);
+            const response = await axios.post('http://10.29.161.128:8080/api/person/login', values);
 
             // Store user token
-            await AsyncStorage.setItem('userToken', response.data.user.token);
+            // await AsyncStorage.setItem('userToken', response.data.user.token);
 
-            Alert.alert('Success', `Logged in as ${response.data.user.name}`);
+            Alert.alert('Success', `Logged in`);
         } catch (error) {
-            setErrors({ api: 'invalid email or password' });
+            console.log('Error:', error.response?.data || error.message);
+            console.log(values)
+            setErrors({ api: error.response?.data?.message || 'Invalid login credentials' });
         } finally {
             setSubmitting(false);
         }

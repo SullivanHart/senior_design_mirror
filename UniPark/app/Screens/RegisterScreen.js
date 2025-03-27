@@ -3,6 +3,8 @@ import { Image, ImageBackground, Pressable, StyleSheet, Text, View, TouchableWit
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function RegisterScreen(props) {
 
@@ -17,15 +19,20 @@ function RegisterScreen(props) {
     async function registerHandler(values, { setSubmitting, setErrors }) {
         
         try {
-            const response = await axios.post('http://10.29.168.128:8080/api/person/register', values);
+            const { email, password } = values;
+            const response = await axios.post('http://10.29.161.128:8080/api/person/register', { email, password }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
         
             // Store user token
-            await AsyncStorage.setItem('userToken', response.data.user.token);
+            // await AsyncStorage.setItem('userToken', response.data.user.token);
         
             Alert.alert('Registration complete. Please login.');
             router.push('./LoginScreen');
           } catch (error) {
-            setErrors({ api: 'Invalid email or password' });
+            console.log('Error:', error.response?.data || error.message);
+            console.log(values)
+            setErrors({ api: error.response?.data?.message || 'Registration failed' });
           } finally {
             setSubmitting(false);
           }
