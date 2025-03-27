@@ -17,12 +17,12 @@ public class PersonController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
-        boolean valid = personService.validateLogin(username, password);
+    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
+        boolean valid = personService.validateLogin(email, password);
         if (valid) {
           return ResponseEntity.status(HttpStatus.OK).body("Login successful!");
       } else {
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid username or password.");
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email or password.");
       }
     }
 
@@ -32,7 +32,7 @@ public class PersonController {
             personService.savePerson(person);  // Save the person
             return ResponseEntity.status(HttpStatus.CREATED).body("Person registered successfully!");
         } catch (RuntimeException e) {
-            // Return a custom error message if there is a problem (e.g., duplicate username)
+            // Return a custom error message if there is a problem (e.g., duplicate email)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

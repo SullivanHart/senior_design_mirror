@@ -15,7 +15,7 @@ public class Person {
     private Long id;
 
     @Column(unique = true)
-    private String username;
+    private String email;
     
     @NotNull
     private String password;
@@ -23,17 +23,17 @@ public class Person {
     // Constructors, getters, and setters
     public Person() {}
 
-    public Person(String username, String password) {
-        this.username = username;
+    public Person(String email, String password) {
+        this.email = email;
         this.password = password;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
