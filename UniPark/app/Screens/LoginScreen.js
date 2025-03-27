@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard, Pressable, Alert } from 'react-native';
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
@@ -6,8 +5,6 @@ import * as Yup from 'yup';
 
 function LoginScreen(props) {
     const router = useRouter();
-    const [email, setEmail] = useState("");
-    const [pass, setPass] = useState("")
 
     const loginValidationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email').required('Email is required'),
@@ -30,7 +27,7 @@ function LoginScreen(props) {
                     initialValues={{ email: '', password: '' }}
                     validationSchema={loginValidationSchema}
                     onSubmit={(values) => {
-                    Alert.alert(`Logged in as ${values.email}`);
+                    Alert.alert(`Logged in as ${values.email}`);                // This is where to add the API call for login
                     }}
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
