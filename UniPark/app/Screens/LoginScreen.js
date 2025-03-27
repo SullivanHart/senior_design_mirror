@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard, Pressable, Alert } from 'react-native';
+import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -10,6 +10,21 @@ function LoginScreen(props) {
         email: Yup.string().email('Invalid email').required('Email is required'),
         password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
     });
+
+    const handleLogin = async (values, { setSubmitting, setErrors }) => {
+        try {
+            const response = await axios.post('http://10.29.168.128:8080/api/person/login', values);
+
+            // Store user token
+            await AsyncStorage.setItem('userToken', response.data.user.token);
+
+            Alert.alert('Success', `Logged in as ${response.data.user.name}`);
+        } catch (error) {
+            setErrors({ api: 'invalid email or password' });
+        } finally {
+            setSubmitting(false);
+        }
+    }
 
     return (
         <ImageBackground 
@@ -26,11 +41,9 @@ function LoginScreen(props) {
                 <Formik
                     initialValues={{ email: '', password: '' }}
                     validationSchema={loginValidationSchema}
-                    onSubmit={(values) => {
-                    Alert.alert(`Logged in as ${values.email}`);                // This is where to add the API call for login
-                    }}
+                    onSubmit={handleLogin}              // This is where to add the API call for login
                 >
-                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
                     <View style={styles.formContainer} >
                         <TextInput
                             style={styles.input}
@@ -51,9 +64,17 @@ function LoginScreen(props) {
                         />
                         {touched.password && errors.password && <Text style={{ color: 'red' }}>{errors.password}</Text>}
 
-                        <Pressable  style={styles.submit} onPress={handleSubmit}>
-                            <Text style={styles.text}> Submit </Text>
-                        </Pressable>
+
+
+                        {errors.api && <Text style={{ color: 'red', marginBottom: 10 }}>{errors.api}</Text>}
+
+                        {isSubmitting ? (
+                            <ActivityIndicator size="small" color="#0000ff" />
+                        ) : (
+                            <Pressable  style={styles.submit} onPress={handleSubmit}>
+                                <Text style={styles.text}> Submit </Text>
+                            </Pressable>
+                        )}
                     </View>
                     )}
                 </Formik>
