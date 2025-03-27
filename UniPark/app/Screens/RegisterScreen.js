@@ -45,13 +45,7 @@ function RegisterScreen(props) {
                             <Formik
                                 initialValues={{ email: '', password: '', confirmPassword: '', }}
                                 validationSchema={registerValidationSchema}
-<<<<<<< HEAD
                                 onSubmit={registerHandler}               // This is where to add the API call for register
-=======
-                                onSubmit={(values) => {
-                                    registerHandler();                // This is where to add the API call for register
-                                }}
->>>>>>> RegisterScreen
                             >
                                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
                                 <View style={styles.formContainer} >
