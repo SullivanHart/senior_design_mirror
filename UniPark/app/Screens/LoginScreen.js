@@ -15,7 +15,7 @@ function LoginScreen(props) {
 
     const handleLogin = async (values, { setSubmitting, setErrors }) => {
         try {
-            const response = await axios.post('http://10.29.161.128:8080/api/person/login', values);
+            const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/person/login', values);
 
             // Store user token
             // await AsyncStorage.setItem('userToken', response.data.user.token);

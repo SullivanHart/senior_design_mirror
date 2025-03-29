@@ -20,7 +20,7 @@ function RegisterScreen(props) {
         
         try {
             const { email, password } = values;
-            const response = await axios.post('http://10.29.161.128:8080/api/person/register', { email, password }, {
+            const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/person/register', { email, password }, {
                 headers: { 'Content-Type': 'application/json' }
             });
         
