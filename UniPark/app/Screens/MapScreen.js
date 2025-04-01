@@ -20,7 +20,7 @@ function MapScreen() {
   const parkingLocation = {
     latitude: 42.02962944614904,
     longitude: -93.65165725516594,
-    availableSpots: 5,
+    availableSpots: 5,    // this value to be adjusted based on pull request
     lotName: "The Armory",
   };
 
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-  // Placeholder styles for future SearchBar
+  // some placeholder styles for future SearchBar
   searchbarContainer: {
     position: 'absolute',
     top: '2.5%',

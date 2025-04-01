@@ -15,12 +15,13 @@ function LoginScreen(props) {
 
     const handleLogin = async (values, { setSubmitting, setErrors }) => {
         try {  
-            const response = await axios.post('http://10.29.161.128:8080/api/person/login', values);
+            const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/person/login', values);
 
             // Store user token
             // await AsyncStorage.setItem('userToken', response.data.user.token);
 
             Alert.alert('Success', `Logged in`);
+            router.replace('./MapScreen');
         } catch (error) {
             console.log('Error:', error.response?.data || error.message);
             console.log(values)
@@ -83,14 +84,7 @@ function LoginScreen(props) {
                     )}
                 </Formik>
             </TouchableWithoutFeedback>
-
-            {/* temporary test button-- navigates to Map */}
-            <Pressable 
-                    style={[styles.submit, { backgroundColor: 'green', marginTop: 20 }]} 
-                    onPress={() => router.replace('./MapScreen')}
-                >
-                    <Text style={styles.text}> Map Screen(temp) </Text>
-            </Pressable>
+            
 
         </ImageBackground>
     );
