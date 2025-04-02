@@ -1,4 +1,4 @@
-package com.cpre491.cobras;
+package com.cpre491.cobras.Person;
 
 public class PersonLogin {
     

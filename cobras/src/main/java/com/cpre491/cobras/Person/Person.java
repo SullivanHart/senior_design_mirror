@@ -1,4 +1,4 @@
-package com.cpre491.cobras;
+package com.cpre491.cobras.Person;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
