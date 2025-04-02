@@ -24,7 +24,7 @@ public class Person {
     public Person() {}
 
     public Person(String email, String password) {
-        this.email = email;
+        this.email = email == null ? null : email.toLowerCase();
         this.password = password;
     }
 
@@ -33,7 +33,7 @@ public class Person {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.email = email == null ? null : email.toLowerCase();
     }
 
     public String getPassword() {

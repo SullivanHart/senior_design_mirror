@@ -10,8 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-
-import com.cpre491.cobras.Person.Person;
+import java.util.ArrayList;
 
 @Entity
 @Getter
@@ -22,12 +21,22 @@ public class ParkingLot {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incremented id
     private Long id;
 
-    private Person admin;
-    private Pi pi;
+    // private Person admin;
+    // private Pi pi;
 
-    @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParkingSpot> spots;
 
     public ParkingLot(){}
+    
+    // CHANGE WHEN CREATING NEW MEMBER VARIABLES
+    public void copyFrom(ParkingLot updatedLot) {
+        // parking spots
+        this.spots.clear(); // remove old spots
+        for (ParkingSpot spot : updatedLot.getSpots()) {
+            spot.setParkingLot(this);
+            this.spots.add(spot);     
+        }
+    }
 
 }

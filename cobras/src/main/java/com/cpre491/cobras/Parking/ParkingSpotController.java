@@ -22,7 +22,7 @@ public class ParkingSpotController {
         return parkingSpotRepository.findAll();
     }
 
-    @GetMapping("/parkinglots/{lotId}/spots/{spotId}")
+    @GetMapping("/lot/{lotId}/spot/{spotId}")
     public ResponseEntity<ParkingSpot> getSpotFromLot( @PathVariable Long lotId, @PathVariable Long spotId) {
 
         ParkingLot lot = parkingLotRepository.findById(lotId).orElse(null);
@@ -45,39 +45,71 @@ public class ParkingSpotController {
     // Get all spots in a specific parking lot
     @GetMapping("/lot/{lotId}")
     public ResponseEntity<List<ParkingSpot>> getSpotsByParkingLot(@PathVariable Long lotId) {
-        if (!parkingLotRepository.existsById(lotId)) {
+        ParkingLot lot = parkingLotRepository.findById(lotId).orElse(null);
+        if (lot == null) {
             return ResponseEntity.notFound().build();
         }
-        ParkingLot parkingLot = parkingSpotRepository.findByParkingLotId(lotId);
-        return ResponseEntity.ok(parkingLot.getSpots());
+        return ResponseEntity.ok(lot.getSpots());
     }
 
     // Create a new parking spot in a specific parking lot
     @PostMapping("/lot/{lotId}")
     public ResponseEntity<ParkingSpot> createSpot(@PathVariable Long lotId, @RequestBody ParkingSpot spot) {
-        return parkingLotRepository.findById(lotId).map(lot -> {
-            spot.setParkingLot(lot);
-            ParkingSpot savedSpot = parkingSpotRepository.save(spot);
-            return ResponseEntity.ok(savedSpot);
-        }).orElse(ResponseEntity.notFound().build());
+        ParkingLot lot = parkingLotRepository.findById(lotId).orElse(null);
+        if (lot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        spot.setParkingLot(lot);
+        ParkingSpot savedSpot = parkingSpotRepository.save(spot);
+        return ResponseEntity.ok(savedSpot);
     }
 
     // Update a spot (e.g., change status)
-    @PutMapping("/{id}")
-    public ResponseEntity<ParkingSpot> updateSpot(@PathVariable Long id, @RequestBody ParkingSpot updated) {
-        return parkingSpotRepository.findById(id).map(spot -> {
-            spot.setStatus(updated.getStatus());
-            return ResponseEntity.ok(parkingSpotRepository.save(spot));
-        }).orElse(ResponseEntity.notFound().build());
+    @PutMapping("/lot/{lotId}/spot/{spotId}")
+    public ResponseEntity<ParkingSpot> updateSpot(@PathVariable Long lotId, @PathVariable Long spotId, @RequestBody ParkingSpot updated) {
+        // find the lot
+        ParkingLot lot = parkingLotRepository.findById(lotId).orElse(null);
+        if (lot == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // find the spot
+        ParkingSpot spot = parkingSpotRepository.findById(spotId).orElse(null);
+        if (spot == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // make sure the spot belongs to the lot
+        if (!spot.getParkingLot().getId().equals(lotId)) {
+            return ResponseEntity.status(403).build();
+        }
+        
+        spot.copyFrom(updated);
+        parkingSpotRepository.save(spot);
+        return ResponseEntity.ok(spot);
+
     }
 
     // Delete a parking spot
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteSpot(@PathVariable Long id) {
-        return parkingSpotRepository.findById(id).map(spot -> {
-            parkingSpotRepository.delete(spot);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+    @DeleteMapping("/lot/{lotId}/spots/{spotId}")
+    public ResponseEntity<?> deleteSpot(@PathVariable Long lotId, @PathVariable Long spotId) {
+        ParkingLot lot = parkingLotRepository.findById(lotId).orElse(null);
+        if (lot == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ParkingSpot spot = parkingSpotRepository.findById(spotId).orElse(null);
+        if (spot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        if (!spot.getParkingLot().getId().equals(lotId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        parkingSpotRepository.delete(spot);
+        return ResponseEntity.noContent().build();
+
     }
 
 }

@@ -20,9 +20,9 @@ public class ParkingLotController {
     }
 
     // Get a specific parking lot by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<ParkingLot> getParkingLotById(@PathVariable Long id) {
-        return parkingLotRepository.findById(id)
+    @GetMapping("/{lotId}")
+    public ResponseEntity<ParkingLot> getParkingLotById(@PathVariable Long lotId) {
+        return parkingLotRepository.findById(lotId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -30,24 +30,33 @@ public class ParkingLotController {
     // Create a new parking lot
     @PostMapping
     public ParkingLot createParkingLot(@RequestBody ParkingLot parkingLot) {
+        if (parkingLot.getSpots() != null) {
+            for (ParkingSpot spot : parkingLot.getSpots()) {
+                spot.setParkingLot(parkingLot);
+            }
+        }
         return parkingLotRepository.save(parkingLot);
     }
 
     // Update an existing parking lot
-    @PutMapping("/{id}")
-    public ResponseEntity<ParkingLot> updateParkingLot(@PathVariable Long id, @RequestBody ParkingLot updatedLot) {
-        return parkingLotRepository.findById(id).map(lot -> {
-            lot.setAdmin(updatedLot.getAdmin());
-            lot.setPi(updatedLot.getPi());
-            lot.setSpots(updatedLot.getSpots());
-            return ResponseEntity.ok(parkingLotRepository.save(lot));
-        }).orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{lotId}")
+    public ResponseEntity<ParkingLot> updateParkingLot(@PathVariable Long lotId, @RequestBody ParkingLot updatedLot) {
+        // find the lot
+        ParkingLot lot = parkingLotRepository.findById(lotId).orElse(null);
+        if (lot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        lot.copyFrom(updatedLot);
+        parkingLotRepository.save(lot);
+        return ResponseEntity.ok(lot);
+
     }
 
     // Delete a parking lot
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteParkingLot(@PathVariable Long id) {
-        return parkingLotRepository.findById(id).map(lot -> {
+    @DeleteMapping("/{lotId}")
+    public ResponseEntity<?> deleteParkingLot(@PathVariable Long lotId) {
+        return parkingLotRepository.findById(lotId).map(lot -> {
             parkingLotRepository.delete(lot);
             return ResponseEntity.ok().build();
         }).orElse(ResponseEntity.notFound().build());
