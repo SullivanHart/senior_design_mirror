@@ -1,40 +1,30 @@
-image: ubuntu:24.04
+image: docker:latest
+
+services:
+  - docker:dind
 
 stages:
   - build
   - test
   - push
 
-# === CI for pi-docker ===
-build-pi-docker:
+variables:
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - echo "$DOCKER_PASS_PI" | docker login -u "$DOCKER_USERNAME_PI" --password-stdin
+
+build-job:
   stage: build
   script:
-    - echo "Building for pi-docker"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - pi-docker/**/*
-        - .gitlab-ci.yml
-    - when: never
+    - echo "Building successful"
 
-test-pi-docker:
+test-job:
   stage: test
   script:
-    - echo "Testing for pi-docker"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - pi-docker/**/*
-        - .gitlab-ci.yml
-    - when: never
+    - echo "Testing successful"
 
-push-pi-docker:
+push-job:
   stage: push
   script:
-    - echo "Pushing for pi-docker"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - pi-docker/**/*
-        - .gitlab-ci.yml
-    - when: never
+    - echo "Pushing successful"
