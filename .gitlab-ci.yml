@@ -1,3 +1,5 @@
+image: ubuntu:24.04
+
 stages:
   - build
   - test
