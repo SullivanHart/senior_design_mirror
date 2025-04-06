@@ -1,7 +1,7 @@
 build_and_push:
   stage: build
 
-  image: docker:20.10.24
+  image: moby/buildkit:latest
 
   only:
     refs:
@@ -16,10 +16,7 @@ build_and_push:
     DOCKER_TAG_COMMIT: $CI_COMMIT_SHORT_SHA
 
   before_script:
-    - apk add --no-cache curl bash git
-    - echo "$DOCKER_PASS_PI" | docker login -u "$DOCKER_USERNAME_PI" --password-stdin
-    - docker buildx create --use
-    - docker buildx inspect --bootstrap
+    - echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"username\":\"$DOCKER_USERNAME_PI\",\"password\":\"$DOCKER_PASS_PI\"}}}" > /root/.docker/config.json
 
   script:
-    - docker buildx build --platform linux/arm64 -t $DOCKER_IMAGE:$DOCKER_TAG_LATEST -t $DOCKER_IMAGE:$DOCKER_TAG_COMMIT --push pi-docker
+    - buildctl build  --frontend dockerfile.v0 --local context=pi-docker  --local dockerfile=pi-docker  --output type=image,name=$DOCKER_IMAGE:$DOCKER_TAG_LATEST,push=true,name-canonical=true  --output type=image,name=$DOCKER_IMAGE:$DOCKER_TAG_COMMIT,push=true,name-canonical=true  --opt platform=linux/arm64
