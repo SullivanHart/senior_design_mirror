@@ -17,6 +17,7 @@ build_and_push:
 
   before_script:
     - apk add --no-cache curl bash git buildkit
+    - mkdir -p /root/.docker
     - echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"username\":\"$DOCKER_USERNAME_PI\",\"password\":\"$DOCKER_PASS_PI\"}}}" > /root/.docker/config.json
 
   script:
