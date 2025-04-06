@@ -27,6 +27,11 @@ build_and_push:
     - until docker info; do sleep 1; done
     - echo "$DOCKER_PASS_PI" | docker login -u "$DOCKER_USERNAME_PI" --password-stdin
 
+  test_docker_access:
+    script:
+      - docker info
+      - docker run --rm hello-world
+
   script:
     - docker buildx create --use --driver docker-container --name builder
     - docker buildx inspect --bootstrap
