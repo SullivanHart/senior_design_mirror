@@ -7,7 +7,6 @@ default:
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_HOST: "tcp://docker:2376"
-  DOCKER_CERT_PATH: "/certs/client"
   DOCKER_DRIVER: overlay2
 
 stages:
@@ -22,6 +21,8 @@ check-dind:
     - echo "Docker certs:"
     - ls -la /certs/client || echo "Certs not found"
     - echo
-    - echo "Docker info:"
+    - echo "Docker version:"
     - docker version || echo "Docker version failed"
+    - echo
+    - echo "Docker info:"
     - docker info || echo "Docker info failed"
