@@ -11,25 +11,17 @@ variables:
   DOCKER_DRIVER: overlay2
 
 stages:
-  - debug
-  - build
+  - check
 
-before_script:
-  - echo "$DOCKER_PASS_PI" | docker login -u "$DOCKER_USERNAME_PI" --password-stdin
-  - docker buildx create --use
-  - docker buildx inspect --bootstrap
-
-debug:
-  stage: debug
+check-dind:
+  stage: check
   script:
-    - echo "Docker environment details:"
-    - docker version
-    - docker info
-    - docker buildx version
-    - docker buildx ls
-
-build:
-  stage: build
-  script:
-    - echo "Building and pushing image for arm64..."
-    - docker buildx build --platform linux/arm64 -t sullivanhart/pi-docker:latest --push .
+    - echo "Environment variables:"
+    - env | grep DOCKER
+    - echo
+    - echo "Docker certs:"
+    - ls -la /certs/client || echo "Certs not found"
+    - echo
+    - echo "Docker info:"
+    - docker version || echo "Docker version failed"
+    - docker info || echo "Docker info failed"
