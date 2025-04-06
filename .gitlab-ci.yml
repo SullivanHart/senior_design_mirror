@@ -1,15 +1,14 @@
-image: docker:latest
+image: docker:24.0.2
 
 services:
-  - docker:dind
-
-stages:
-  - build
-  - test
-  - push
+  - docker:24.0.2-dind
 
 variables:
   DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "" # disables TLS inside DinD so it works smoothly
+
+stages:
+  - build
 
 before_script:
   - echo "$DOCKER_PASS_PI" | docker login -u "$DOCKER_USERNAME_PI" --password-stdin
@@ -19,14 +18,4 @@ before_script:
 build-job:
   stage: build
   script:
-    - echo "Building successful"
-
-test-job:
-  stage: test
-  script:
-    - echo "Testing successful"
-
-push-job:
-  stage: push
-  script:
-    - echo "Pushing successful"
+    - docker buildx build --platform linux/arm64 -t sullivanhart/pi-docker:latest --push .
