@@ -1,27 +1,14 @@
 build_and_push:
   stage: build
-  image: docker:24.0
-
-  services:
-    - name: docker:dind
-      alias: docker
+  image: docker:24.0.9
 
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
 
-  only:
-    refs:
-      - main
-    changes:
-      - pi-docker/**
-      - .gitlab-ci.yml
-
-  variables:
-    DOCKER_IMAGE: sullivanhart/pi-docker
-    DOCKER_TAG_LATEST: latest
-    DOCKER_TAG_COMMIT: $CI_COMMIT_SHORT_SHA
+  before_script:
+    - apk add --no-cache docker-cli-buildx
+    - docker buildx install
+    - docker buildx create --use
 
   script:
     - docker info
