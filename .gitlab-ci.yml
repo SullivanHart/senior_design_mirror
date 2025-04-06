@@ -1,6 +1,8 @@
 build_and_push:
   stage: build
 
+  image: docker:20.10.24
+
   only:
     refs:
       - main
@@ -8,18 +10,16 @@ build_and_push:
       - pi-docker/**
       - .gitlab-ci.yml
 
-  image: docker:20.10.24
-  services:
-    - docker:20.10.24-dind
-
   variables:
-    DOCKER_DRIVER: overlay2
     DOCKER_IMAGE: sullivanhart/pi-docker
     DOCKER_TAG_LATEST: latest
     DOCKER_TAG_COMMIT: $CI_COMMIT_SHORT_SHA
 
   before_script:
+    - apk add --no-cache curl bash git
     - echo "$DOCKER_PASS_PI" | docker login -u "$DOCKER_USERNAME_PI" --password-stdin
+    - docker buildx create --use
+    - docker buildx inspect --bootstrap
 
   script:
     - docker buildx build --platform linux/arm64 -t $DOCKER_IMAGE:$DOCKER_TAG_LATEST -t $DOCKER_IMAGE:$DOCKER_TAG_COMMIT --push pi-docker
