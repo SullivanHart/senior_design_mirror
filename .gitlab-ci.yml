@@ -13,6 +13,9 @@ variables:
 
 before_script:
   - echo "$DOCKER_PASS_PI" | docker login -u "$DOCKER_USERNAME_PI" --password-stdin
+  - docker context create builder || true
+  - docker buildx create builder --use || docker buildx use builder
+  - docker buildx inspect --bootstrap
 
 build-job:
   stage: build
