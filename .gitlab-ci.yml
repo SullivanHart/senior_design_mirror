@@ -5,6 +5,7 @@ build_and_push:
       - main
     changes:
       - pi-docker/**
+      - .gitlab-ci.yml
 
   image: docker:latest
   services:
