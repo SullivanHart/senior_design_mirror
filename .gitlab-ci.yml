@@ -5,17 +5,36 @@ stages:
   - test
   - push
 
-build-job:
+# === CI for pi-docker ===
+build-pi-docker:
   stage: build
   script:
-    - echo "Building successful"
+    - echo "Building for pi-docker"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - pi-docker/**/*
+        - .gitlab-ci.yml
+    - when: never
 
-test-job:
+test-pi-docker:
   stage: test
   script:
-    - echo "Testing successful"
+    - echo "Testing for pi-docker"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - pi-docker/**/*
+        - .gitlab-ci.yml
+    - when: never
 
-push-job:
+push-pi-docker:
   stage: push
   script:
-    - echo "Pushing successful"
+    - echo "Pushing for pi-docker"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - pi-docker/**/*
+        - .gitlab-ci.yml
+    - when: never
