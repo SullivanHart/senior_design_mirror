@@ -15,12 +15,12 @@ build_and_push:
     DOCKER_TAG_LATEST: latest
     DOCKER_TAG_COMMIT: $CI_COMMIT_SHORT_SHA
 
-  before_script:
-    - apk add --no-cache curl bash git
-    - mkdir -p /root/.docker
-    - echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"username\":\"$DOCKER_USERNAME_PI\",\"password\":\"$DOCKER_PASS_PI\"}}}" > /root/.docker/config.json
-    - curl -L https://github.com/moby/buildkit/releases/download/v0.12.5/buildkit-v0.12.5.linux-amd64.tar.gz | tar -xz -C /usr/local --strip-components=1
-    - export PATH=$PATH:/usr/local/bin
+before_script:
+  - apk add --no-cache curl bash git
+  - mkdir -p /root/.docker
+  - echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"username\":\"$DOCKER_USERNAME_PI\",\"password\":\"$DOCKER_PASS_PI\"}}}" > /root/.docker/config.json
+  - mkdir -p /tmp/buildkit
+  - curl -L https://github.com/moby/buildkit/releases/download/v0.12.5/buildkit-v0.12.5.linux-amd64.tar.gz | tar -xz -C /tmp/buildkit
 
-  script:
-    - buildctl build  --frontend dockerfile.v0  --local context=pi-docker  --local dockerfile=pi-docker  --output type=image,name=$DOCKER_IMAGE:$DOCKER_TAG_LATEST,push=true  --output type=image,name=$DOCKER_IMAGE:$DOCKER_TAG_COMMIT,push=true  --opt platform=linux/arm64
+script:
+  - /tmp/buildkit/bin/buildctl build  --frontend dockerfile.v0  --local context=pi-docker  --local dockerfile=pi-docker  --output type=image,name=$DOCKER_IMAGE:$DOCKER_TAG_LATEST,push=true  --output type=image,name=$DOCKER_IMAGE:$DOCKER_TAG_COMMIT,push=true  --opt platform=linux/arm64
