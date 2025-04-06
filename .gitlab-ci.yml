@@ -15,14 +15,7 @@ stages:
 check-dind:
   stage: check
   script:
-    - echo "Environment variables:"
-    - env | grep DOCKER
-    - echo
-    - echo "Docker certs:"
-    - ls -la /certs/client || echo "Certs not found"
-    - echo
-    - echo "Docker version:"
-    - docker version || echo "Docker version failed"
-    - echo
-    - echo "Docker info:"
-    - docker info || echo "Docker info failed"
+    - echo "Checking Docker access..."
+    - for i in {1..10}; do
+      docker info && break || (echo "Waiting for Docker... ($i)" && sleep 3);
+      done
