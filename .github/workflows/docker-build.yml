@@ -41,8 +41,8 @@ jobs:
           curl -H "Content-Type: application/json" \
                -X POST \
                -d "{
-                     \"content\": \"✅ **Build succeeded** for [\`${{ github.repository }}\`](${{ github.server_url }}/${{ github.repository }})\nCommit: [\`${{ github.sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\nAuthor: ${{ github.actor }}\nMessage: _${{ github.event.head_commit.message }}_\" 
-                   }" \
+                     \"content\": \"✅ Build succeeded for ${GITHUB_REPOSITORY}\nCommit: ${GITHUB_SHA}\nAuthor: ${GITHUB_ACTOR}\nMessage: ${{ github.event.head_commit.message }}\"
+                    }" \
                ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Notify Discord on failure
@@ -51,6 +51,6 @@ jobs:
           curl -H "Content-Type: application/json" \
                -X POST \
                -d "{
-                     \"content\": \"❌ **Build failed** for [\`${{ github.repository }}\`](${{ github.server_url }}/${{ github.repository }})\nCommit: [\`${{ github.sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\nAuthor: ${{ github.actor }}\nMessage: _${{ github.event.head_commit.message }}_\" 
+                     \"content\": \"❌ **Build failed** for ${GITHUB_REPOSITORY}\nCommit: ${GITHUB_SHA}\nAuthor: ${GITHUB_ACTOR}\nMessage: ${{ github.event.head_commit.message }}\"
                    }" \
                ${{ secrets.DISCORD_WEBHOOK }}
