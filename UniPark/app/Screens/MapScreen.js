@@ -10,6 +10,7 @@ function MapScreen() {
 
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [availableSpots, setAvailableSpots] = useState(null);
   const [region, setRegion] = useState({
     latitude: 42.02962944614904, // Ames, Iowa
     longitude: -93.65165725516594,
@@ -20,7 +21,7 @@ function MapScreen() {
   const parkingLocation = {
     latitude: 42.02962944614904,
     longitude: -93.65165725516594,
-    availableSpots: 5,    // this value to be adjusted based on pull request
+    availableSpots: availableSpots != null ? availableSpots : '...',
     lotName: "The Armory",
   };
 
@@ -33,6 +34,16 @@ function MapScreen() {
       }
       let currentLocation = await Location.getCurrentPositionAsync();
       setLocation(currentLocation);
+
+      try {
+        const response = await fetch('http://sddec25-09e.ece.iastate.edu:8080/api/parkingspots/lot/2'); 
+        const data = await response.json();
+        const available = data.filter(spot => spot.status === 'EMPTY').length;
+        setAvailableSpots(available);
+      } catch (error) {
+        console.error('Failed to fetch parking spots:', error);
+        setAvailableSpots('Error');
+      }
     })();
   }, []);
 
