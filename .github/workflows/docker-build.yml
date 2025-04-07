@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - pi-https-init
     paths:
       - "pi-docker/**"
       - ".github/workflows/**"
