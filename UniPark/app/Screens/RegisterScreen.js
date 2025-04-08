@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import axios from 'axios';
 import * as Yup from 'yup';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function RegisterScreen(props) {
