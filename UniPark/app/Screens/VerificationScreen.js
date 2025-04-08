@@ -1,9 +1,10 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 
 function VerificationScreen(props) {
     return (
         <div>
-            
+
         </div>
     );
 }
