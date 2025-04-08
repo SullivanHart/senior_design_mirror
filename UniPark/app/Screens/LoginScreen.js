@@ -1,3 +1,4 @@
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
@@ -30,16 +31,33 @@ function LoginScreen(props) {
         }
     }
 
+        const [keyboardStatus, setKeyboardStatus] = useState(false);
+        const passwordRef = useRef(null);
+    
+        useEffect(() => {
+          const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardStatus(true);
+          });
+          const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardStatus(false);
+          });
+      
+          return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+          };
+        }, []);
+
     return (
         <ImageBackground 
             style={styles.background}
             source={require('../../assets/images/BackgroundPlaceholder.jpg')} 
         >
             
-            <View style={styles.logoContainer}>
+            {!keyboardStatus && <View style={styles.logoContainer}>
                 <Image source={require('../../assets/images/PlaceholderIcon.png')} style={styles.logo} />
                 <Text style={styles.text}> Login </Text>
-            </View>
+            </View>}
 
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                 <Formik
@@ -47,28 +65,31 @@ function LoginScreen(props) {
                     validationSchema={loginValidationSchema}
                     onSubmit={handleLogin}              // This is where to add the API call for login
                 >
-                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
+                    {({ handleChange, handleSubmit, values, errors, touched, isSubmitting }) => (
                     <View style={styles.formContainer} >
                         <TextInput
                             style={styles.input}
                             placeholder="Email"
                             value={values.email}
                             onChangeText={handleChange('email')}
-                            onBlur={handleBlur('email')}
+                            submitBehavior='submit'
+                            returnKeyType='next'
+                            onSubmitEditing={() => passwordRef.current?.focus()}
                         />
                         {touched.email && errors.email && <Text style={{ color: 'red' }}>{errors.email}</Text>}
 
                         <TextInput
+                            ref={passwordRef}
                             style={styles.input}
                             placeholder="Password"
                             value={values.password}
                             secureTextEntry={true}
                             onChangeText={handleChange('password')}
-                            onBlur={handleBlur('password')}
+                            returnkey='done'
+                            onSubmitEditing={handleSubmit}
                         />
                         {touched.password && errors.password && <Text style={{ color: 'red' }}>{errors.password}</Text>}
-
-
+                        
 
                         {errors.api && <Text style={{ color: 'red', marginBottom: 10 }}>{errors.api}</Text>}
 

@@ -74,14 +74,13 @@ function RegisterScreen(props) {
                                 validationSchema={registerValidationSchema}
                                 onSubmit={registerHandler}               // This is where to add the API call for register
                             >
-                                {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
+                                {({ handleChange, handleSubmit, values, errors, touched, isSubmitting }) => (
                                 <View style={styles.formContainer} >
                                     <TextInput
                                         style={styles.input}
                                         placeholder='Email'
                                         value={values.email}
                                         onChangeText={handleChange('email')}
-                                        //onBlur={handleBlur('email')}
                                         submitBehavior='submit'
                                         returnKeyType='next'
                                         onSubmitEditing={() => passwordRef.current?.focus()}
@@ -95,7 +94,6 @@ function RegisterScreen(props) {
                                         value={values.password}
                                         secureTextEntry={true}
                                         onChangeText={handleChange('password')}
-                                        //onBlur={handleBlur('password')}
                                         submitBehavior='submit'
                                         returnKeyType='next'
                                         onSubmitEditing={() => confirmPasswordRef.current?.focus()}
@@ -109,8 +107,6 @@ function RegisterScreen(props) {
                                         value={values.confirmPassword}
                                         secureTextEntry={true}
                                         onChangeText={handleChange('confirmPassword')}
-                                        // onBlur={handleBlur('confirmPassword')}
-                                        //submitBehavior='done'
                                         returnKeyType='done'
                                         onSubmitEditing={handleSubmit}
                                     />
