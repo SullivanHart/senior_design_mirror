@@ -31,22 +31,26 @@ function LoginScreen(props) {
         }
     }
 
-        const [keyboardStatus, setKeyboardStatus] = useState(false);
-        const passwordRef = useRef(null);
+    const [keyboardStatus, setKeyboardStatus] = useState(false);
+    const passwordRef = useRef(null);
     
-        useEffect(() => {
-          const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
             setKeyboardStatus(true);
-          });
-          const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        });
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
             setKeyboardStatus(false);
-          });
+        });
       
-          return () => {
+        return () => {
             showSubscription.remove();
             hideSubscription.remove();
-          };
-        }, []);
+        };
+    }, []);
+
+    const handleReturn = () => {
+        router.push('./WelcomeScreen');
+    }
 
     return (
         <ImageBackground 
@@ -54,6 +58,12 @@ function LoginScreen(props) {
             source={require('../../assets/images/BackgroundPlaceholder.jpg')} 
         >
             
+            {!keyboardStatus &&
+                <Pressable style={styles.backButton} onPress={handleReturn}>
+                    <Text style={styles.text}> Back </Text>
+                </Pressable>
+            }
+
             {!keyboardStatus && <View style={styles.logoContainer}>
                 <Image source={require('../../assets/images/PlaceholderIcon.png')} style={styles.logo} />
                 <Text style={styles.text}> Login </Text>
@@ -116,7 +126,16 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },    
+    },
+    backButton: {
+        backgroundColor: '#FF0000',
+        borderRadius: 20,
+        marginTop: 10,
+        padding: 5,
+        position: 'absolute',
+        top: 5,
+        left: 5
+    },
     logo: {
         width: 100,
         height: 100,
