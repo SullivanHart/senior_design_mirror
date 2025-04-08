@@ -1,7 +1,8 @@
-import React from 'react';
-import { Image, ImageBackground, Pressable, StyleSheet, Text, View, TouchableWithoutFeedback, TextInput, Alert, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { Image, ImageBackground, Pressable, StyleSheet, Text, View, TouchableWithoutFeedback, TextInput, Alert, ActivityIndicator, Keyboard } from 'react-native';
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
+import axios from 'axios';
 import * as Yup from 'yup';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,37 +17,57 @@ function RegisterScreen(props) {
             confirmPassword: Yup.string().required('Password is required').oneOf([Yup.ref('password')], 'Passwords must match'),
         });
 
-    async function registerHandler(values, { setSubmitting, setErrors }) {
+        async function registerHandler(values, { setSubmitting, setErrors }) {
         
-        try {
-            const { email, password } = values;
-            const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/person/register', { email, password }, {
-                headers: { 'Content-Type': 'application/json' }
-            });
-        
-            // Store user token
-            // await AsyncStorage.setItem('userToken', response.data.user.token);
-        
-            Alert.alert('Registration complete. Please login.');
-            router.push('./LoginScreen');
-          } catch (error) {
-            console.log('Error:', error.response?.data || error.message);
-            console.log(values)
-            setErrors({ api: error.response?.data?.message || 'Registration failed' });
-          } finally {
-            setSubmitting(false);
-          }
-    }
+            try {
+                const { email, password } = values;
+                const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/person/register', { email, password }, {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            
+                // Store user token
+                // await AsyncStorage.setItem('userToken', response.data.user.token);
+            
+                Alert.alert('Registration complete. Please login.');
+                router.push('./LoginScreen');
+              } catch (error) {
+                console.log('Error:', error.response?.data || error.message);
+                console.log(values)
+                setErrors({ api: error.response?.data?.message || 'Registration failed' });
+              } finally {
+                setSubmitting(false);
+              }
+        }
+    
+
+    const [keyboardStatus, setKeyboardStatus] = useState(false);
+    const passwordRef = useRef(null);
+    const confirmPasswordRef = useRef(null);
+
+    useEffect(() => {
+      const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+        setKeyboardStatus(true);
+      });
+      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardStatus(false);
+      });
+  
+      return () => {
+        showSubscription.remove();
+        hideSubscription.remove();
+      };
+    }, []);
+  
 
     return (
         <ImageBackground 
             style={styles.background}
             source={require('../../assets/images/BackgroundPlaceholder.jpg')}
         >
-            <View style={styles.logoContainer}>
+            {!keyboardStatus && <View style={styles.logoContainer}>
                             <Image source={require('../../assets/images/PlaceholderIcon.png')} style={styles.logo} />
                             <Text style={styles.text}> Register </Text>
-                        </View>
+                        </View>}
             
                         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                             <Formik
@@ -58,30 +79,41 @@ function RegisterScreen(props) {
                                 <View style={styles.formContainer} >
                                     <TextInput
                                         style={styles.input}
-                                        placeholder="Email"
+                                        placeholder='Email'
                                         value={values.email}
                                         onChangeText={handleChange('email')}
-                                        onBlur={handleBlur('email')}
+                                        //onBlur={handleBlur('email')}
+                                        submitBehavior='submit'
+                                        returnKeyType='next'
+                                        onSubmitEditing={() => passwordRef.current?.focus()}
                                     />
                                     {touched.email && errors.email && <Text style={{ color: 'red' }}>{errors.email}</Text>}
             
                                     <TextInput
+                                        ref={passwordRef}
                                         style={styles.input}
-                                        placeholder="Password"
+                                        placeholder='Password'
                                         value={values.password}
                                         secureTextEntry={true}
                                         onChangeText={handleChange('password')}
-                                        onBlur={handleBlur('password')}
+                                        //onBlur={handleBlur('password')}
+                                        submitBehavior='submit'
+                                        returnKeyType='next'
+                                        onSubmitEditing={() => confirmPasswordRef.current?.focus()}
                                     />
                                     {touched.password && errors.password && <Text style={{ color: 'red' }}>{errors.password}</Text>}
 
                                     <TextInput
+                                        ref={confirmPasswordRef}
                                         style={styles.input}
                                         placeholder="Confirm Password"
                                         value={values.confirmPassword}
                                         secureTextEntry={true}
                                         onChangeText={handleChange('confirmPassword')}
-                                        onBlur={handleBlur('confirmPassword')}
+                                        // onBlur={handleBlur('confirmPassword')}
+                                        //submitBehavior='done'
+                                        returnKeyType='done'
+                                        onSubmitEditing={handleSubmit}
                                     />
                                     {touched.confirmPassword && errors.confirmPassword && <Text style={{ color: 'red' }}>{errors.confirmPassword}</Text>}
             
