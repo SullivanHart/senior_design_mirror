@@ -56,6 +56,10 @@ function RegisterScreen(props) {
         hideSubscription.remove();
       };
     }, []);
+
+    const handleReturn = () => {
+        router.push('./WelcomeScreen');
+    }
   
 
     return (
@@ -63,6 +67,13 @@ function RegisterScreen(props) {
             style={styles.background}
             source={require('../../assets/images/BackgroundPlaceholder.jpg')}
         >
+
+            {!keyboardStatus &&
+                <Pressable style={styles.backButton} onPress={handleReturn}>
+                    <Text style={styles.text}> Back </Text>
+                </Pressable>
+            }
+
             {!keyboardStatus && <View style={styles.logoContainer}>
                             <Image source={require('../../assets/images/PlaceholderIcon.png')} style={styles.logo} />
                             <Text style={styles.text}> Register </Text>
@@ -137,7 +148,16 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },    
+    },
+    backButton: {
+        backgroundColor: '#FF0000',
+        borderRadius: 20,
+        marginTop: 10,
+        padding: 5,
+        position: 'absolute',
+        top: 5,
+        left: 5
+    },
     logo: {
         width: 100,
         height: 100,
