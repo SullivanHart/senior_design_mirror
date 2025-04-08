@@ -1,0 +1,26 @@
+import React from 'react';
+
+function VerificationScreen(props) {
+    return (
+        
+    );
+}
+
+const styles = StyleSheet.create({
+    topHalf: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: 20,
+    },
+    bottomHalf: {
+        justifyContent: 'space-around',
+    },
+    iconBg: {
+        width: 250,
+        height: 250,
+        backgroundColor: 'lightgreen',
+        borderRadius: 250
+    }
+});
+
+export default VerificationScreen;
