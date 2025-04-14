@@ -6,10 +6,16 @@ WORKDIR /app
 
 # Init files into container
 COPY requirements.txt .
-COPY main.py .
+COPY heartbeat.py .
+COPY g_cnstnts.py
+COPY db.py
+COPY transmit.py
+COPY server.py
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the script
 CMD ["python", "main.py"]
+CMD ["python", "server.py"]
+
