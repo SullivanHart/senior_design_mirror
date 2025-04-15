@@ -22,6 +22,7 @@ function LoginScreen(props) {
             // await AsyncStorage.setItem('userToken', response.data.user.token);
 
             Alert.alert('Success', `Logged in`);
+            router.replace('./MapScreen');
         } catch (error) {
             console.log('Error:', error.response?.data || error.message);
             console.log(values)
@@ -115,7 +116,6 @@ function LoginScreen(props) {
                 </Formik>
             </TouchableWithoutFeedback>
             
-
 
         </ImageBackground>
     );
