@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      # Uncomment if using local machine
+      #- mysql-data:/var/lib/mysql
+      - /home/ubuntu/mysql-data:/var/lib/mysql
+
+  springboot-app:
+    build: .
+    container_name: springboot-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ubuntu/mysql-data     
+      # Uncomment if using local machine
+      #device: E:\mysql-data
+      o: bind
