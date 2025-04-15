@@ -52,8 +52,7 @@ function MapScreen() {
   }, []);
 
   const handleReservePress = () => {
-    // Future implementation of reservation page navigation
-    // router.push('/Reserve');
+    router.push('/Screens/ReserveScreen');
   };
 
   if (errorMsg) {
@@ -76,16 +75,19 @@ function MapScreen() {
             showsUserLocation={true}
           >
             <Marker coordinate={parkingLocation}>
-              <Callout>
+              <Callout onPress={handleReservePress}>
                 <View style={styles.callout}>
                   <Text style={styles.lotName}>{parkingLocation.lotName}</Text>
                   <Text>{`Available Spots: ${parkingLocation.availableSpots}`}</Text>
-                  <TouchableOpacity style={styles.reserveButton} onPress={handleReservePress}>
+
+                  {/* fake button appearance is not functional on its own */}
+                  <View style={styles.reserveButton}>
                     <Text style={styles.reserveButtonText}>Reserve</Text>
-                  </TouchableOpacity>
+                  </View>
                 </View>
               </Callout>
             </Marker>
+
           </MapView>
 
           {/* Future implementation: SearchBar component can be inserted here */}
