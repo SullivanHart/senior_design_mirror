@@ -2,25 +2,64 @@ import React from 'react';
 import { View } from 'react-native';
 
 function PaymentScreen(props) {
-    const [publishableKey, setPublishableKey] = useState('');
 
-    const fetchPublishableKey = async () => {
-    const key = await fetchKey(); // fetch key from your server here
-        setPublishableKey(key);
+    const fetchPaymentIntentClientSecret = async (amountInCents) => {
+        try {
+          const response = await axios.post('https://sddec25-09e.ece.iastate.edu:8080/api/payments/create-payment-intent', {
+            amount: amountInCents, // e.g., 1099 for $10.99
+            currency: 'usd',
+            paymentMethodType: 'card',
+          });
+      
+          return response.data.clientSecret;
+        } catch (error) {
+          console.error('Error creating PaymentIntent:', error.response?.data || error.message);
+          throw error;
+        }
     };
 
-    useEffect(() => {
-        fetchPublishableKey();
-    }, []);
+    const initializePaymentSheet = async () => {
+        setLoading(true);
+    
+        try {
+          const clientSecret = await fetchPaymentIntentClientSecret(1099);
+    
+          const { error: initError } = await initPaymentSheet({
+            paymentIntentClientSecret: clientSecret,
+            merchantDisplayName: 'UniPark',
+          });
+    
+          if (initError) {
+            Alert.alert('Error', initError.message);
+            setLoading(false);
+            return;
+          }
+    
+          const { error: presentError } = await presentPaymentSheet();
+    
+          if (presentError) {
+            Alert.alert('Payment failed', presentError.message);
+          } else {
+            Alert.alert('Success', 'Your payment was confirmed!');
+          }
+        } catch (err) {
+          Alert.alert('Something went wrong', err.message);
+        } finally {
+          setLoading(false);
+        }
+    };
 
+    
     return (
-        <StripeProvider
-            publishableKey={publishableKey}
-            merchantIdentifier="merchant.identifier" // required for Apple Pay
-            urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
-        >
-            
-        </StripeProvider>
+        <View>
+            <Text style={{ fontSize: 22, marginBottom: 20 }}>Checkout</Text>
+            <Button
+                title="Pay $10.99"
+                onPress={initializePaymentSheet}
+                disabled={loading}
+            />
+            {loading && <ActivityIndicator style={{ marginTop: 10 }} />}
+        </View>
     );
 }
 
