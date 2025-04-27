@@ -7,7 +7,7 @@ function ReserveScreen() {
 
   const handleContinueToPayment = () => {
     // future navigation impementation to payment screen/handler
-    router.push('/PaymentScreen');
+    router.push('/Screens/PaymentScreen');
     alert('Continuing to payment...');
    };
 
