@@ -25,6 +25,8 @@ function MapScreen() {
     lotName: "The Armory",
   };
 
+  const lotId = 2; // adjust according to selected lot ID
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -36,7 +38,7 @@ function MapScreen() {
       setLocation(currentLocation);
 
       try {
-        const response = await fetch('http://sddec25-09e.ece.iastate.edu:8080/api/parkingspots/lot/2'); 
+        const response = await fetch(`http://sddec25-09e.ece.iastate.edu:8080/api/parkingspots/lot/${lotId}`); 
         const data = await response.json();
         const available = data.filter(spot => spot.status === 'EMPTY').length;
         setAvailableSpots(available);

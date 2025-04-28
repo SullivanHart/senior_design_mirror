@@ -100,7 +100,6 @@ function RegisterScreen(props) {
                                 )}
                             </Formik>
                         </TouchableWithoutFeedback>
-
         </ImageBackground>
     );
 }
