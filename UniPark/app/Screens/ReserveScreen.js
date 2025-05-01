@@ -1,6 +1,6 @@
 // necessary hooks and components from React
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 
 // Reserve screen component
@@ -11,8 +11,12 @@ function ReserveScreen() {
   const handleContinueToPayment = () => {
     // future navigation impementation to payment screen/handler
     router.push('/Screens/PaymentScreen');
-    alert('Continuing to payment...');
    };
+
+   const handleReturn = () => {
+      router.push('./MapScreen');
+   };
+
   // state variables to store fetched data
   const [availableSpots, setAvailableSpots] = useState(null);
   const [cost, setCost] = useState(null);
@@ -69,6 +73,9 @@ function ReserveScreen() {
   // main UI rendering after the loading completes
   return (
     <View style={styles.container}>
+      <Pressable style = {styles.backButton} onPress ={handleReturn}>
+        <Text style ={styles.backButtonText}>Back</Text>
+      </Pressable>
       <Text style={styles.heading}>Reserve a Parking Spot</Text>
       
       <View style={styles.infoBox}>
@@ -91,6 +98,20 @@ function ReserveScreen() {
 
 // component specific styles created in StyleSheet
 const styles = StyleSheet.create({
+  backButton: {
+    backgroundColor: '#FF0000',
+    borderRadius: 20,
+    marginTop: 10,
+    padding: 5,
+    position: 'absolute',
+    top: 5,
+    left: 5,
+    zIndex: 10
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 18,
+  },
   container: {
     flex: 1,
     padding: 20,
