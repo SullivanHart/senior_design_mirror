@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // Reserve screen component
 function ReserveScreen() {
@@ -17,6 +19,23 @@ function ReserveScreen() {
       router.push('./MapScreen');
    };
 
+   const createReservation = async () => {
+    try {
+      // dummy email for now, will eventually be a token
+      const email = 'testemail@gmail.com';
+  
+      const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/reservations', {
+        email,
+        parkingSpotId: 1 // hardcoded for spot 1
+      });
+  
+      alert(`Reservation created`);
+    } catch (error) {
+      console.error('Reservation failed:', error.response?.data || error.message);
+      alert('Failed to create reservation');
+    }
+  };
+  
   // state variables to store fetched data
   const [availableSpots, setAvailableSpots] = useState(null);
   const [cost, setCost] = useState(null);
@@ -92,6 +111,14 @@ function ReserveScreen() {
       <TouchableOpacity style={styles.paymentButton} onPress={handleContinueToPayment}>
         <Text style={styles.paymentButtonText}>Continue to Payment</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.paymentButton, { backgroundColor: 'dodgerblue', marginTop: 10 }]}
+        onPress={createReservation}
+      >
+        <Text style={styles.paymentButtonText}>Create Reservation</Text>
+      </TouchableOpacity>
+
     </View>
   );
 }
