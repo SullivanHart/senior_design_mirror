@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 function ReserveScreen() {
   // initialize the router for navigation between screens
   const router = useRouter();
+  const lotId = 2; // adjust according to selected lot ID
 
   const handleContinueToPayment = () => {
     // future navigation impementation to payment screen/handler
@@ -19,22 +20,24 @@ function ReserveScreen() {
       router.push('./MapScreen');
    };
 
-   const createReservation = async () => {
-    try {
-      // dummy email for now, will eventually be a token
-      const email = 'testemail@gmail.com';
+   
+
+  //  const createReservation = async () => {
+  //   try {
+  //     // dummy email for now, will eventually be a token
+  //     const email = 'testemail@gmail.com';
   
-      const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/reservations', {
-        email,
-        parkingSpotId: 1 // hardcoded for spot 1
-      });
+  //     const response = await axios.post(`http://sddec25-09e.ece.iastate.edu:8080/api/reservations/${lotId}`, {
+  //       email,
+  //       parkingSpotId: 8// hardcoded for spot 1
+  //     });
   
-      alert(`Reservation created`);
-    } catch (error) {
-      console.error('Reservation failed:', error.response?.data || error.message);
-      alert('Failed to create reservation');
-    }
-  };
+  //     alert(`Reservation created`);
+  //   } catch (error) {
+  //     console.error('Reservation failed:', error.response?.data || error.message);
+  //     alert('Failed to create reservation');
+  //   }
+  // };
   
   // state variables to store fetched data
   const [availableSpots, setAvailableSpots] = useState(null);
@@ -42,7 +45,7 @@ function ReserveScreen() {
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true); // tracks loading status
 
-  const lotId = 2; // adjust according to selected lot ID
+ 
 
   // fetch parking lot data when the component first mounts
   useEffect(() => {
@@ -112,12 +115,12 @@ function ReserveScreen() {
         <Text style={styles.paymentButtonText}>Continue to Payment</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[styles.paymentButton, { backgroundColor: 'dodgerblue', marginTop: 10 }]}
         onPress={createReservation}
       >
         <Text style={styles.paymentButtonText}>Create Reservation</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
     </View>
   );

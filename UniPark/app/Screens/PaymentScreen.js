@@ -7,6 +7,8 @@ import {initPaymentSheet, presentPaymentSheet} from '@stripe/stripe-react-native
 function PaymentScreen(props) {
     const router = useRouter();
 
+    const lotId = 2; // adjust according to selected lot ID
+
     const [loading, setLoading] = useState(false);
     const [price, setPrice] = useState(200);
     const [keyboardStatus, setKeyboardStatus] = useState(false);
@@ -27,6 +29,23 @@ function PaymentScreen(props) {
           throw error;
         }
     };
+
+      const createReservation = async () => {
+        try {
+          // dummy email for now, will eventually be a token
+          const email = 'testemail@gmail.com';
+      
+          const response = await axios.post(`http://sddec25-09e.ece.iastate.edu:8080/api/reservations/${lotId}`, {
+            email,
+            parkingSpotId: 9// hardcoded for spot 1
+          });
+      
+          alert(`Reservation created`);
+        } catch (error) {
+          console.error('Reservation failed:', error.response?.data || error.message);
+          alert('Failed to create reservation');
+        }
+      };
 
     const initializePaymentSheet = async () => {
         setLoading(true);
@@ -71,6 +90,8 @@ function PaymentScreen(props) {
             Alert.alert('Payment failed', presentError.message);
           } else {
             Alert.alert('Success', 'Your payment was confirmed!');
+
+            await createReservation();
             router.push('./MapScreen');
           }
         } catch (err) {
