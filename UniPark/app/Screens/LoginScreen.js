@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function LoginScreen(props) {
     const router = useRouter();
@@ -17,9 +16,6 @@ function LoginScreen(props) {
     const handleLogin = async (values, { setSubmitting, setErrors }) => {
         try {
             const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/person/login', values);
-
-            // Store user token
-            // await AsyncStorage.setItem('userToken', response.data.user.token);
 
             Alert.alert('Success', `Logged in`);
             router.replace('./MapScreen');
