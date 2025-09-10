@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { StripeProvider } from '@stripe/stripe-react-native';
+import { PaperProvider } from 'react-native-paper';
 import axios from 'axios';
 
 export default function Layout() {
@@ -27,15 +28,14 @@ export default function Layout() {
     }, []);
 
   return (
-    <StripeProvider
-    publishableKey={publishableKey}
-    merchantIdentifier="merchant.identifier" // required for Apple Pay
-    urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
-    >
-      <Stack />
-    </StripeProvider>
-  
-
-
+    <PaperProvider>
+      <StripeProvider
+        publishableKey={publishableKey}
+        merchantIdentifier="merchant.identifier" // required for Apple Pay
+        urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
+      >
+        <Stack />
+      </StripeProvider>
+    </PaperProvider>
   );
 }
