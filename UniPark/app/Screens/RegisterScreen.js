@@ -28,7 +28,7 @@ function RegisterScreen(props) {
                 // await AsyncStorage.setItem('userToken', response.data.user.token);
             
                 Alert.alert('Registration complete. Please login.');
-                router.push('./LoginScreen');
+                router.push('Screens/LoginScreen');
               } catch (error) {
                 console.log('Error:', error.response?.data || error.message);
                 console.log(values)
@@ -58,7 +58,7 @@ function RegisterScreen(props) {
     }, []);
 
     const handleReturn = () => {
-        router.push('./WelcomeScreen');
+        router.push('Screens/WelcomeScreen');
     }
   
 

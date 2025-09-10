@@ -92,7 +92,7 @@ function PaymentScreen(props) {
             Alert.alert('Success', 'Your payment was confirmed!');
 
             await createReservation();
-            router.push('./MapScreen');
+            router.push('Screens/MapScreen');
           }
         } catch (err) {
           Alert.alert('Something went wrong', err.message);

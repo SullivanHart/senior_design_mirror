@@ -18,7 +18,7 @@ function LoginScreen(props) {
             const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/person/login', values);
 
             Alert.alert('Success', `Logged in`);
-            router.replace('./MapScreen');
+            router.replace('Screens/MapScreen');
         } catch (error) {
             console.log('Error:', error.response?.data || error.message);
             console.log(values)
@@ -46,7 +46,7 @@ function LoginScreen(props) {
     }, []);
 
     const handleReturn = () => {
-        router.push('./WelcomeScreen');
+        router.push('Screens/WelcomeScreen');
     }
 
     return (

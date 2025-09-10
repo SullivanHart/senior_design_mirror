@@ -13,11 +13,11 @@ function ReserveScreen() {
 
   const handleContinueToPayment = () => {
     // future navigation impementation to payment screen/handler
-    router.push('/Screens/PaymentScreen');
+    router.push('Screens/PaymentScreen');
    };
 
    const handleReturn = () => {
-      router.push('./MapScreen');
+      router.push('Screens/MapScreen');
    };
 
    
