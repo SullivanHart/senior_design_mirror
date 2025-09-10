@@ -6,8 +6,8 @@ export default function WelcomeScreen() {
 
     const router = useRouter();
 
-    function loginHandler() {router.push('./LoginScreen')} 
-    function registerHandler() {router.push('./RegisterScreen')}
+    function loginHandler() {router.push('Screens/LoginScreen')} 
+    function registerHandler() {router.push('Screens/RegisterScreen')}
 
     return (
         <ImageBackground 
