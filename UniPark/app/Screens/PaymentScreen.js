@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, Pressable, Alert, Keyboard, TouchableOpacity } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Alert, Keyboard } from 'react-native';
+import { Button, Text} from 'react-native-paper';
 import { useRouter } from "expo-router";
 import axios from 'axios';
 import {initPaymentSheet, presentPaymentSheet} from '@stripe/stripe-react-native';
+import BackButton from '../components/BackButton';
 
 function PaymentScreen(props) {
     const router = useRouter();
@@ -128,20 +130,18 @@ function PaymentScreen(props) {
         <View
           style={styles.background}
         >
-            <TouchableOpacity style={styles.backButton} onPress={handleReturn}>
-                <Text style={styles.text}> Back </Text>
-            </TouchableOpacity>
+            <BackButton onPress={handleReturn} />
 
             <View>
               <Text style={styles.titleText}>Checkout</Text>
-              {!loading && <Pressable
+              {!loading && 
+                <Button
+                  mode="contained-tonal"
                   onPress={initializePaymentSheet}
                   style={styles.button}
-              >
-                <Text style={styles.text}>
+                >
                   Continue to Payment
-                </Text>
-              </Pressable> }
+                </Button> }
               {loading && <ActivityIndicator/>}
             </View>
             
@@ -168,21 +168,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    backgroundColor: 'dodgerblue',
+    // backgroundColor: 'dodgerblue',
     borderRadius: 20,
     marginTop: 10,
     padding: 5,
-
-  },
-  backButton: {
-    backgroundColor: '#FF0000',
-    borderRadius: 20,
-    marginTop: 10,
-    padding: 5,
-    position: 'absolute',
-    top: 5,
-    left: 5
-},
+  }
 });
 
 export default PaymentScreen;

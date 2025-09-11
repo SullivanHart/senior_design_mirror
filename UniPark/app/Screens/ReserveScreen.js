@@ -1,9 +1,12 @@
 // necessary hooks and components from React
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { Button } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import {initPaymentSheet, presentPaymentSheet} from '@stripe/stripe-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import BackButton from '../components/BackButton';
 
 // Reserve screen component
 function ReserveScreen() {
@@ -20,24 +23,96 @@ function ReserveScreen() {
       router.push('Screens/MapScreen');
    };
 
-   
+  const fetchPaymentIntentClientSecret = async (amountInCents) => {
+    try {
+      const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/payments/create-payment-intent', {
+        amount: amountInCents, // e.g., 1099 for $10.99
+        currency: 'usd',
+        paymentMethodType: 'card',
+      });
 
-  //  const createReservation = async () => {
-  //   try {
-  //     // dummy email for now, will eventually be a token
-  //     const email = 'testemail@gmail.com';
+      //console.log('got response back and got ', response.data.clientSecret);
   
-  //     const response = await axios.post(`http://sddec25-09e.ece.iastate.edu:8080/api/reservations/${lotId}`, {
-  //       email,
-  //       parkingSpotId: 8// hardcoded for spot 1
-  //     });
+      return response.data.clientSecret;
+    } catch (error) {
+      console.error('Error creating PaymentIntent:', error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+  const initializePaymentSheet = async () => {
+      setLoading(true);
   
-  //     alert(`Reservation created`);
-  //   } catch (error) {
-  //     console.error('Reservation failed:', error.response?.data || error.message);
-  //     alert('Failed to create reservation');
-  //   }
-  // };
+      try {
+        const clientSecret = await fetchPaymentIntentClientSecret(cost);
+        console.log('got client secret back: ', clientSecret);
+  
+        // Wrap only initPaymentSheet in its own try/catch
+        let initError;
+        try {
+          const result = await initPaymentSheet({
+            paymentIntentClientSecret: clientSecret,
+            merchantDisplayName: 'UniPark',
+            googlePay: {
+              merchantCountryCode: 'US',  // Must match your business country
+              currencyCode: 'USD',
+              testEnv: true, // Set to false in production
+            },
+          });
+          console.log('initPaymentSheet result:', result);
+          initError = result?.error;
+        } catch (e) {
+          console.error('Exception thrown during initPaymentSheet:', e);
+          Alert.alert('Stripe Init Error', e.message || 'Unknown error during init.');
+          setLoading(false);
+          return;
+        }
+  
+        console.log('finished initpaymentsheet');
+
+        if (initError) {
+          console.error('Init PaymentSheetError ', initError);
+          Alert.alert('Error', initError.message);
+          setLoading(false);
+          return;
+        }
+  
+        const { error: presentError } = await presentPaymentSheet();
+  
+        if (presentError) {
+          Alert.alert('Payment failed', presentError.message);
+        } else {
+          Alert.alert('Success', 'Your payment was confirmed!');
+
+          await createReservation();
+          router.push('Screens/MapScreen');
+        }
+      } catch (err) {
+        Alert.alert('Something went wrong', err.message);
+      } finally {
+        setLoading(false);
+      }
+
+      
+  };
+
+
+  const createReservation = async () => {
+    try {
+      // dummy email for now, will eventually be a token
+      const email = 'testemail@gmail.com';
+  
+      const response = await axios.post(`http://sddec25-09e.ece.iastate.edu:8080/api/reservations/${lotId}`, {
+        email,
+        parkingSpotId: 8// hardcoded for spot 1
+      });
+  
+      alert(`Reservation created`);
+    } catch (error) {
+      console.error('Reservation failed:', error.response?.data || error.message);
+      alert('Failed to create reservation');
+    }
+  };
   
   // state variables to store fetched data
   const [availableSpots, setAvailableSpots] = useState(null);
@@ -50,6 +125,7 @@ function ReserveScreen() {
   // fetch parking lot data when the component first mounts
   useEffect(() => {
     async function fetchLotData() {
+      console.log('Fetching lot data...');
       try {
         // sends API requests simultaneously
         const [spotsRes, costRes, addressRes] = await Promise.all([
@@ -65,6 +141,7 @@ function ReserveScreen() {
 
         // calculates number of available spots (status === 'EMPTY')
         const available = spotsData.filter(spot => spot.status === 'EMPTY').length;
+        console.log(`Fetched lot data: ${available} available spots, cost: ${costData}, address: ${addressData}`);
 
         // update state with fetched data
         setAvailableSpots(available);
@@ -95,10 +172,8 @@ function ReserveScreen() {
   // main UI rendering after the loading completes
   return (
     <View style={styles.container}>
-      <Pressable style = {styles.backButton} onPress ={handleReturn}>
-        <Text style ={styles.backButtonText}>Back</Text>
-      </Pressable>
-      <Text style={styles.heading}>Reserve a Parking Spot</Text>
+      <BackButton onPress={handleReturn} />
+    <Text style={styles.heading}>Reserve a Parking Spot</Text>
       
       <View style={styles.infoBox}>
         <Text style={styles.label}>Available Spots:</Text>
@@ -111,9 +186,15 @@ function ReserveScreen() {
         <Text style={styles.value}>{address}</Text>
       </View>
 
-      <TouchableOpacity style={styles.paymentButton} onPress={handleContinueToPayment}>
-        <Text style={styles.paymentButtonText}>Continue to Payment</Text>
-      </TouchableOpacity>
+      {!loading && 
+        <Button
+          mode="contained-tonal"
+          textColor='white'
+          onPress={initializePaymentSheet}
+          style={styles.button}
+        >
+          Continue to Payment
+      </Button> }
 
       {/* <TouchableOpacity
         style={[styles.paymentButton, { backgroundColor: 'dodgerblue', marginTop: 10 }]}
@@ -128,23 +209,10 @@ function ReserveScreen() {
 
 // component specific styles created in StyleSheet
 const styles = StyleSheet.create({
-  backButton: {
-    backgroundColor: '#FF0000',
-    borderRadius: 20,
-    marginTop: 10,
-    padding: 5,
-    position: 'absolute',
-    top: 5,
-    left: 5,
-    zIndex: 10
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 18,
-  },
   container: {
     flex: 1,
     padding: 20,
+    paddingTop: 60,
     justifyContent: 'flex-start',
     backgroundColor: '#fff',
   },
