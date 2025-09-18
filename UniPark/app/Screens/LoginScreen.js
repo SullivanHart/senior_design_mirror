@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, ImageBackground, StyleSheet, Image, TouchableWithoutFeedback, Keyboard, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { Button, Text, TextInput } from 'react-native-paper';
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import BackButton from '../components/BackButton';
 
 function LoginScreen(props) {
     const router = useRouter();
@@ -56,9 +58,7 @@ function LoginScreen(props) {
         >
             
             {!keyboardStatus &&
-                <Pressable style={styles.backButton} onPress={handleReturn}>
-                    <Text style={styles.text}> Back </Text>
-                </Pressable>
+                <BackButton onPress={handleReturn} />
             }
 
             {!keyboardStatus && <View style={styles.logoContainer}>
@@ -75,6 +75,8 @@ function LoginScreen(props) {
                     {({ handleChange, handleSubmit, values, errors, touched, isSubmitting }) => (
                     <View style={styles.formContainer} >
                         <TextInput
+                            mode='outlined'
+                            theme={{ roundness: 20, }}
                             style={styles.input}
                             placeholder="Email"
                             value={values.email}
@@ -83,9 +85,16 @@ function LoginScreen(props) {
                             returnKeyType='next'
                             onSubmitEditing={() => passwordRef.current?.focus()}
                         />
-                        {touched.email && errors.email && <Text style={{ color: 'red' }}>{errors.email}</Text>}
+
+                        {touched.email && errors.email &&
+                            <Text style={{ color: 'red' }}>
+                                {errors.email}
+                            </Text>}
 
                         <TextInput
+                            mode='outlined'
+                            autoCapitalize='none'
+                            theme={{ roundness: 20, }}
                             ref={passwordRef}
                             style={styles.input}
                             placeholder="Password"
@@ -95,17 +104,24 @@ function LoginScreen(props) {
                             returnkey='done'
                             onSubmitEditing={handleSubmit}
                         />
-                        {touched.password && errors.password && <Text style={{ color: 'red' }}>{errors.password}</Text>}
-                        
 
-                        {errors.api && <Text style={{ color: 'red', marginBottom: 10 }}>{errors.api}</Text>}
+                        {touched.password && errors.password && 
+                            <Text style={{ color: 'red' }}>
+                                {errors.password}
+                            </Text>}
+
+
+                        {errors.api && 
+                            <Text style={{ color: 'red', marginBottom: 10 }}>
+                                {errors.api}
+                            </Text>}
 
                         {isSubmitting ? (
                             <ActivityIndicator size="small" color="#0000ff" />
                         ) : (
-                            <Pressable  style={styles.submit} onPress={handleSubmit}>
-                                <Text style={styles.text}> Submit </Text>
-                            </Pressable>
+                            <Button mode="contained" textColor='white' style={styles.submit} onPress={handleSubmit}>
+                                Submit
+                            </Button>
                         )}
                     </View>
                     )}
@@ -123,15 +139,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    backButton: {
-        backgroundColor: '#FF0000',
-        borderRadius: 20,
-        marginTop: 10,
-        padding: 5,
-        position: 'absolute',
-        top: 5,
-        left: 5
-    },
     logo: {
         width: 100,
         height: 100,
@@ -146,27 +153,22 @@ const styles = StyleSheet.create({
         fontSize: 22,
     },  
     input: {
-        width: '60%',
+        width: '100%',
         height: 40,
-        borderColor: 'gray',
-        borderWidth: 2,
         paddingHorizontal: 10,
         marginTop: 10,
         borderRadius: 20,
-        backgroundColor: '#fff',
       },
     formContainer: {
-        width: '80%',
+        width: '60%',
         alignItems: 'center',
         justifyContent: 'center',
         height: '40%',
-        //backgroundColor: '#fff'
+        paddingBottom: 100,
     },
     submit: {
-        backgroundColor: 'dodgerblue',
-        borderRadius: 20,
+        width: '50%',
         marginTop: 10,
-        padding: 5,
     },
 });
 
