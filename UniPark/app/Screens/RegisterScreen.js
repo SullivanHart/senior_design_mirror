@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Image, ImageBackground, Pressable, StyleSheet, View, TouchableWithoutFeedback, Alert, ActivityIndicator, Keyboard } from 'react-native';
+import { Image, ImageBackground, StyleSheet, View, TouchableWithoutFeedback, Alert, ActivityIndicator, Keyboard } from 'react-native';
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import axios from 'axios';
 import * as Yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button, Text, TextInput } from 'react-native-paper';
+import BackButton from '../components/BackButton';
 
 function RegisterScreen(props) {
 
