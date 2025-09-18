@@ -14,11 +14,6 @@ function ReserveScreen() {
   const router = useRouter();
   const lotId = 2; // adjust according to selected lot ID
 
-  const handleContinueToPayment = () => {
-    // future navigation impementation to payment screen/handler
-    router.push('Screens/PaymentScreen');
-   };
-
    const handleReturn = () => {
       router.push('Screens/MapScreen');
    };
@@ -45,7 +40,6 @@ function ReserveScreen() {
   
       try {
         const clientSecret = await fetchPaymentIntentClientSecret(cost);
-        console.log('got client secret back: ', clientSecret);
   
         // Wrap only initPaymentSheet in its own try/catch
         let initError;
@@ -59,7 +53,6 @@ function ReserveScreen() {
               testEnv: true, // Set to false in production
             },
           });
-          console.log('initPaymentSheet result:', result);
           initError = result?.error;
         } catch (e) {
           console.error('Exception thrown during initPaymentSheet:', e);
@@ -67,8 +60,6 @@ function ReserveScreen() {
           setLoading(false);
           return;
         }
-  
-        console.log('finished initpaymentsheet');
 
         if (initError) {
           console.error('Init PaymentSheetError ', initError);
