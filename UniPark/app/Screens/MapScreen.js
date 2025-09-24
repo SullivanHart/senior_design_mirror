@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { View, StyleSheet, TouchableOpacity, Animated, Easing } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { ActivityIndicator } from 'react-native-paper';
+import { ActivityIndicator, Text, Portal, Card, Button } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 
 function MapScreen() {
@@ -17,6 +17,19 @@ function MapScreen() {
     latitudeDelta: 0.05,
     longitudeDelta: 0.05,
   });
+  const [showLotSheet, setShowLotSheet] = useState(false);
+
+  const sheetTranslateY = useRef(new Animated.Value(260)).current;
+
+  useEffect(() => {
+    Animated.timing(sheetTranslateY, {
+      toValue: showLotSheet ? 0 : 260, 
+
+      duration: 250,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [showLotSheet, sheetTranslateY]);
 
   const parkingLocation = {
     latitude: 42.02962944614904,
@@ -54,8 +67,20 @@ function MapScreen() {
   }, []);
 
   const handleReservePress = () => {
-    router.push('/Screens/ReserveScreen');
+    setShowLotSheet(false);
+    setTimeout(() => {
+      router.push('/Screens/ReserveScreen');
+    }, 260);
   };
+
+  const handleMarkerPress = useCallback(() => {
+    setShowLotSheet(true);
+  }, []);
+
+
+  const handleMapPress = useCallback(() => {
+    setShowLotSheet(false);
+  }, []);
 
   if (errorMsg) {
     return (
@@ -65,7 +90,7 @@ function MapScreen() {
     );
   }
 
-  return (
+return (
     <View style={styles.container}>
       {location ? (
         <>
@@ -75,22 +100,31 @@ function MapScreen() {
             region={region}
             onRegionChangeComplete={onRegionChangeComplete}
             showsUserLocation={true}
+            onPress={handleMapPress}
           >
-            <Marker coordinate={parkingLocation}>
-              <Callout onPress={handleReservePress}>
-                <View style={styles.callout}>
-                  <Text style={styles.lotName}>{parkingLocation.lotName}</Text>
-                  <Text>{`Available Spots: ${parkingLocation.availableSpots}`}</Text>
-
-                  {/* fake button appearance is not functional on its own */}
-                  <View style={styles.reserveButton}>
-                    <Text style={styles.reserveButtonText}>Reserve</Text>
-                  </View>
-                </View>
-              </Callout>
-            </Marker>
-
+            <Marker coordinate={parkingLocation} onPress={handleMarkerPress} />
           </MapView>
+
+          
+          <Portal>
+            <Animated.View
+              pointerEvents="box-none"
+              style={[
+                styles.bottomSheet,
+                { transform: [{ translateY: sheetTranslateY }] },
+              ]}
+            >
+              <Card mode="elevated" style={styles.bottomCard} onPress={() => {}}>
+                <Card.Title title={parkingLocation.lotName} />
+                <Card.Content>
+                  <Text>{`Available Spots: ${parkingLocation.availableSpots}`}</Text>
+                </Card.Content>
+                <Card.Actions>
+                  <Button mode="contained" onPress={handleReservePress}>Reserve</Button>
+                </Card.Actions>
+              </Card>
+            </Animated.View>
+          </Portal>
 
           {/* Future implementation: SearchBar component can be inserted here */}
           {/* <View style={styles.searchbarContainer}>
@@ -145,6 +179,18 @@ const styles = StyleSheet.create({
     top: '2.5%',
     width: '95%',
     alignSelf: 'center',
+  },
+  bottomSheet: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: 16,
+  },
+  bottomCard: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderRadius: 20,
   },
 });
 
