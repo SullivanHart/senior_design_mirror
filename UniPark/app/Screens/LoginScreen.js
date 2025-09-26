@@ -4,11 +4,12 @@ import { Button, Text, TextInput } from 'react-native-paper';
 import { useRouter } from "expo-router";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
 import BackButton from '../components/BackButton';
+import { useAuth } from '../components/AuthProvider';
 
 function LoginScreen(props) {
     const router = useRouter();
+    const auth = useAuth();
 
     const loginValidationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email').required('Email is required'),
@@ -17,8 +18,12 @@ function LoginScreen(props) {
 
     const handleLogin = async (values, { setSubmitting, setErrors }) => {
         try {
-            const response = await axios.post('http://sddec25-09e.ece.iastate.edu:8080/api/person/login', values);
+            const response = await auth._login(values);
 
+            if (response.status !== 200) {
+                throw new Error(response.data?.message || 'Login failed');
+            }
+            console.log('Login successful, response:', response.data);
             Alert.alert('Success', `Logged in`);
             router.replace('Screens/MapScreen');
         } catch (error) {
@@ -76,6 +81,7 @@ function LoginScreen(props) {
                     <View style={styles.formContainer} >
                         <TextInput
                             mode='outlined'
+                            autoCapitalize='none'
                             theme={{ roundness: 20, }}
                             style={styles.input}
                             placeholder="Email"
