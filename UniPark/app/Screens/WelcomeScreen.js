@@ -1,11 +1,13 @@
 import { Image, ImageBackground, StyleSheet, View } from 'react-native';
 import { useRouter } from "expo-router";
 import { Button, Text } from 'react-native-paper';
+import { useAuth } from '../components/AuthProvider'
 
 export default function WelcomeScreen() {
 
     const router = useRouter();
-
+    const auth = useAuth();
+    
     function loginHandler() {router.push('Screens/LoginScreen')} 
     function registerHandler() {router.push('Screens/RegisterScreen')}
 

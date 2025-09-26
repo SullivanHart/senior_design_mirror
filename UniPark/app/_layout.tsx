@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { PaperProvider } from 'react-native-paper';
 import axios from 'axios';
+import { AuthProvider } from './components/AuthProvider';
 
 export default function Layout() {
   const router = useRouter();
@@ -28,14 +29,16 @@ export default function Layout() {
     }, []);
 
   return (
-    <PaperProvider>
-      <StripeProvider
-        publishableKey={publishableKey}
-        merchantIdentifier="merchant.identifier" // required for Apple Pay
-        urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
-      >
-        <Stack />
-      </StripeProvider>
-    </PaperProvider>
+    <AuthProvider>
+      <PaperProvider>
+        <StripeProvider
+          publishableKey={publishableKey}
+          merchantIdentifier="merchant.identifier" // required for Apple Pay
+          urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
+        >
+          <Stack />
+        </StripeProvider>
+      </PaperProvider>
+    </AuthProvider>
   );
 }
