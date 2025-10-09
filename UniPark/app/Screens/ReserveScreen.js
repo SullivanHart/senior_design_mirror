@@ -7,6 +7,7 @@ import axios from 'axios';
 import {initPaymentSheet, presentPaymentSheet} from '@stripe/stripe-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import BackButton from '../components/BackButton';
+import MapView, { Polygon } from 'react-native-maps';
 
 // Reserve screen component
 function ReserveScreen() {
@@ -111,7 +112,45 @@ function ReserveScreen() {
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true); // tracks loading status
 
- 
+  // hard-coded demo blocks for live map
+  const [region, setRegion] = useState(null);
+  const [blocks, setBlocks] = useState([]);
+
+  // setting fillColor based on capacity of parking blocks
+  const getBlockColors = (ratio) => {
+  if (ratio == null || isNaN(ratio)) {
+    return { fillColor: 'rgba(120,120,120,0.25)', strokeColor: 'rgba(120,120,120,0.9)' };
+  }
+  if (ratio < 0.60) return { fillColor: 'rgba(0,180,0,0.25)',   strokeColor: 'rgba(0,120,0,0.9)' };
+  if (ratio < 0.90) return { fillColor: 'rgba(255,165,0,0.25)', strokeColor: 'rgba(200,120,0,0.9)' };
+  return                         { fillColor: 'rgba(220,0,0,0.25)',     strokeColor: 'rgba(160,0,0,0.9)' };
+};
+
+const computeRegionFromCoords = (coords, {minLatDelta = 0.0004, minLngDelta = 0.0004} = {}) => {
+  if (!coords || coords.length === 0) return null;
+  let minLat =  90, maxLat = -90, minLng =  180, maxLng = -180;
+  coords.forEach(({ latitude, longitude }) => {
+    minLat = Math.min(minLat, latitude); maxLat = Math.max(maxLat, latitude);
+    minLng = Math.min(minLng, longitude); maxLng = Math.max(maxLng, longitude);
+  });
+  const latDelta = Math.max(minLatDelta, (maxLat - minLat) * 1.4);
+  const lngDelta = Math.max(minLngDelta, (maxLng - minLng) * 1.4);
+  return {
+    latitude:  (minLat + maxLat) / 2,
+    longitude: (minLng + minLng) / 2,
+    latitudeDelta:  latDelta,
+    longitudeDelta: lngDelta,
+  };
+};
+
+const getLotMapConfig = (lotId) => {
+  const presets = {
+    1: { lat: 42.0269, lng: -93.6469 },
+    2: { lat: 42.0265, lng: -93.6465 }, 
+    3: { lat: 42.0262, lng: -93.6461 },
+  };
+  return presets[lotId] ?? { lat: 42.0265, lng: -93.6465 };
+};
 
   // fetch parking lot data when the component first mounts
   useEffect(() => {
@@ -150,6 +189,57 @@ function ReserveScreen() {
     fetchLotData(); // call the async function
   }, []);
 
+  // 3 arbitrary spots 
+useEffect(() => {
+  const { lat: baseLat, lng: baseLng } = getLotMapConfig(lotId);
+
+  // row of rectangles (each block = one row)
+  const halfLat = 0.00005;  // thin (north-south)
+  const halfLng = 0.00028;  // long (east-west)
+  const rowGap  = 0.00026;  // vertical spacing between rows
+
+  // helper to make a rectangle polygon from center + half-sizes
+  const makeRect = (lat, lng, dLat, dLng) => ([
+    { latitude: lat + dLat, longitude: lng - dLng },
+    { latitude: lat + dLat, longitude: lng + dLng },
+    { latitude: lat - dLat, longitude: lng + dLng },
+    { latitude: lat - dLat, longitude: lng - dLng },
+  ]);
+
+  // stack 3 adjacent rows within the lot
+  const row1Lat = baseLat + rowGap * 1.15;   // top row
+  const row2Lat = baseLat;            // middle row
+  const row3Lat = baseLat - rowGap * 1.15;   // bottom row
+  const rowLng  = baseLng;
+
+  const demoBlocks = [
+    {
+      id: `lot${lotId}-row1`,
+      capacity: 20,
+      occupied: 7,  // about 30% will show green
+      polygon: makeRect(row1Lat, rowLng, halfLat, halfLng),
+    },
+    {
+      id: `lot${lotId}-row2`,
+      capacity: 22,
+      occupied: 16, // about 70% shows orange
+      polygon: makeRect(row2Lat, rowLng, halfLat, halfLng),
+    },
+    {
+      id: `lot${lotId}-row3`,
+      capacity: 18,
+      occupied: 17, // >90% shows red
+      polygon: makeRect(row3Lat, rowLng, halfLat, halfLng),
+    },
+  ];
+
+  setBlocks(demoBlocks);
+
+  // compute tighter region so rows appear large in scale
+  const all = demoBlocks.flatMap(b => b.polygon);
+  const r = computeRegionFromCoords(all, { minLatDelta: 0.00055, minLngDelta: 0.00055 });
+  if (r) setRegion(r);
+}, [lotId]);
 
   // shows a Loading spinner while data is being fetched
   if (loading) {
@@ -176,6 +266,50 @@ function ReserveScreen() {
         <Text style={styles.label}>Address:</Text>
         <Text style={styles.value}>{address}</Text>
       </View>
+
+      {region && (
+        <View style={styles.mapWrapper}>
+          <MapView
+            style={styles.map}
+            initialRegion={region}
+            region={region}
+          >
+            {blocks.map((b) => {
+              const capacity = Number(b?.capacity);
+              const occupied = Number(b?.occupied);
+              const ratio = capacity > 0 ? occupied / capacity : null;
+              const { fillColor, strokeColor } = getBlockColors(ratio);
+              const coords = Array.isArray(b?.polygon) ? b.polygon : [];
+              if (coords.length < 3) return null;
+              return (
+                <Polygon
+                  key={b.id ?? JSON.stringify(coords)}
+                  coordinates={coords}
+                  fillColor={fillColor}
+                  strokeColor={strokeColor}
+                  strokeWidth={1}
+                  tappable
+                />
+              );
+            })}
+          </MapView>
+          <View style={styles.legend}>
+            <Text style={styles.legendTitle}>Capacity</Text>
+            <View style={styles.legendRow}>
+              <View style={[styles.swatch, { backgroundColor: 'rgba(0,180,0,0.25)', borderColor: 'rgba(0,120,0,0.9)'}]} />
+              <Text style={styles.legendText}>{'<'} 60% full</Text>
+            </View>
+            <View style={styles.legendRow}>
+              <View style={[styles.swatch, { backgroundColor: 'rgba(255,165,0,0.25)', borderColor: 'rgba(200,120,0,0.9)'}]} />
+              <Text style={styles.legendText}>60–89% full</Text>
+            </View>
+            <View style={styles.legendRow}>
+              <View style={[styles.swatch, { backgroundColor: 'rgba(220,0,0,0.25)', borderColor: 'rgba(160,0,0,0.9)'}]} />
+              <Text style={styles.legendText}>{'\u2265'} 90% full</Text>
+            </View>
+          </View>
+        </View>
+      )}
 
       {!loading && 
         <Button
@@ -228,6 +362,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
   },
+  mapWrapper: {
+    height: 260,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 20,
+    backgroundColor: '#e9eef3',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  legend: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    elevation: 2,
+  },
+  legendTitle: { fontWeight: '700', marginBottom: 4 },
+  legendRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  swatch: {
+    width: 16, height: 16, borderRadius: 3, borderWidth: 1, marginRight: 6,
+  },
+  legendText: { fontSize: 12 },
   paymentButton: {
     padding: 15,
     backgroundColor: '#4CAF50',
