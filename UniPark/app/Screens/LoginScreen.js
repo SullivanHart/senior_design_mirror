@@ -1,12 +1,60 @@
-import React, { useState } from 'react';
-import { View, Text, ImageBackground, StyleSheet, Image, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, ImageBackground, StyleSheet, Image, TouchableWithoutFeedback, Keyboard, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { Button, Text, TextInput } from 'react-native-paper';
 import { useRouter } from "expo-router";
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import BackButton from '../components/BackButton';
+import { useAuth } from '../components/AuthProvider';
 
 function LoginScreen(props) {
     const router = useRouter();
-    const [email, setEmail] = useState("");
-    const [pass, setPass] = useState("")
+    const auth = useAuth();
 
+    const loginValidationSchema = Yup.object().shape({
+        email: Yup.string().email('Invalid email').required('Email is required'),
+        password: Yup.string().min(3, 'Password must be at least 3 characters').required('Password is required'),
+    });
+
+    const handleLogin = async (values, { setSubmitting, setErrors }) => {
+        try {
+            const response = await auth._login(values);
+
+            if (response.status !== 200) {
+                throw new Error(response.data?.message || 'Login failed');
+            }
+            console.log('Login successful, response:', response.data);
+            Alert.alert('Success', `Logged in`);
+            router.replace('Screens/MapScreen');
+        } catch (error) {
+            console.log('Error:', error.response?.data || error.message);
+            console.log(values)
+            setErrors({ api: error.response?.data?.message || 'Invalid login credentials' });
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    const [keyboardStatus, setKeyboardStatus] = useState(false);
+    const passwordRef = useRef(null);
+    
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardStatus(true);
+        });
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardStatus(false);
+        });
+      
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
+
+    const handleReturn = () => {
+        router.push('Screens/WelcomeScreen');
+    }
 
     return (
         <ImageBackground 
@@ -14,30 +62,78 @@ function LoginScreen(props) {
             source={require('../../assets/images/BackgroundPlaceholder.jpg')} 
         >
             
-            <View style={styles.logoContainer}>
+            {!keyboardStatus &&
+                <BackButton onPress={handleReturn} />
+            }
+
+            {!keyboardStatus && <View style={styles.logoContainer}>
                 <Image source={require('../../assets/images/PlaceholderIcon.png')} style={styles.logo} />
                 <Text style={styles.text}> Login </Text>
-            </View>
+            </View>}
 
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-                <View style={styles.formContainer} >
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Email"
-                        value={email}
-                        onChangeText={(newText) => setEmail(newText)}
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        value={pass}
-                        secureTextEntry={true}
-                        onChangeText={(newText) => setPass(newText)}
-                    />
-                </View>
+                <Formik
+                    initialValues={{ email: '', password: '' }}
+                    validationSchema={loginValidationSchema}
+                    onSubmit={handleLogin}              // This is where to add the API call for login
+                >
+                    {({ handleChange, handleSubmit, values, errors, touched, isSubmitting }) => (
+                    <View style={styles.formContainer} >
+                        <TextInput
+                            mode='outlined'
+                            autoCapitalize='none'
+                            theme={{ roundness: 20, }}
+                            style={styles.input}
+                            placeholder="Email"
+                            value={values.email}
+                            onChangeText={handleChange('email')}
+                            submitBehavior='submit'
+                            returnKeyType='next'
+                            onSubmitEditing={() => passwordRef.current?.focus()}
+                        />
+
+                        {touched.email && errors.email &&
+                            <Text style={{ color: 'red' }}>
+                                {errors.email}
+                            </Text>}
+
+                        <TextInput
+                            mode='outlined'
+                            autoCapitalize='none'
+                            theme={{ roundness: 20, }}
+                            ref={passwordRef}
+                            style={styles.input}
+                            placeholder="Password"
+                            value={values.password}
+                            secureTextEntry={true}
+                            onChangeText={handleChange('password')}
+                            returnkey='done'
+                            onSubmitEditing={handleSubmit}
+                        />
+
+                        {touched.password && errors.password && 
+                            <Text style={{ color: 'red' }}>
+                                {errors.password}
+                            </Text>}
+
+
+                        {errors.api && 
+                            <Text style={{ color: 'red', marginBottom: 10 }}>
+                                {errors.api}
+                            </Text>}
+
+                        {isSubmitting ? (
+                            <ActivityIndicator size="small" color="#0000ff" />
+                        ) : (
+                            <Button mode="contained" textColor='white' style={styles.submit} onPress={handleSubmit}>
+                                Submit
+                            </Button>
+                        )}
+                    </View>
+                    )}
+                </Formik>
             </TouchableWithoutFeedback>
             
-
 
         </ImageBackground>
     );
@@ -48,37 +144,37 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },    
+    },
     logo: {
         width: 100,
         height: 100,
         
     },
     logoContainer: {
-        position: 'absolute',
-        top: 100,
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: 10
     },
     text: {
         color: '#fff',
         fontSize: 22,
     },  
     input: {
-        width: '60%',
+        width: '100%',
         height: 40,
-        borderColor: 'gray',
-        borderWidth: 2,
         paddingHorizontal: 10,
         marginTop: 10,
         borderRadius: 20,
-        backgroundColor: '#fff',
       },
     formContainer: {
-        width: '80%',
+        width: '60%',
         alignItems: 'center',
         justifyContent: 'center',
         height: '40%',
-        //backgroundColor: '#fff'
+        paddingBottom: 100,
+    },
+    submit: {
+        width: '50%',
+        marginTop: 10,
     },
 });
 
