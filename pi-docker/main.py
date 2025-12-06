@@ -1,8 +1,6 @@
-import time
-from datetime import datetime
+def main():
+    print("Hello from parkinglotmonitoring!")
 
-print("CONTAINER IS RUNNING V3!", flush=True)
 
-while True:
-    print(f"[{datetime.now()}] Running inside the container...", flush=True)
-    time.sleep(5)
+if __name__ == "__main__":
+    main()
