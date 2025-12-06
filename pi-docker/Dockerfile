@@ -1,15 +1,16 @@
-# Use python image
 FROM python:3.11-slim
 
-# Set directory
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Set working directory
 WORKDIR /app
 
-# Init files into container
-COPY requirements.txt .
-COPY main.py .
+# Copy project files
+COPY . .
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies via uv (reads pyproject.toml or requirements.txt)
+RUN uv sync --frozen
 
-# Run the script
-CMD ["python", "main.py"]
+# Run the project using uv (faster than python)
+CMD ["uv", "run", "main.py"]
